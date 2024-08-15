@@ -5,25 +5,38 @@
 
 ## **Usage Instructions**
 
-To use the User Data Management System, follow these steps:
+To effectively use the User Data Management System, follow these detailed instructions:
 
-1. **Setup**: Ensure you have Python and the required libraries (`pyodbc`, `json`, `argparse`) installed. You may need to configure your SQL Server connection parameters in the script.
+### **Setup**
 
-2. **Run the Application**:
-   ```sh
-   python script_name.py --file path_to_json_file
-   ```
+1. **Ensure Prerequisites**:
+   - Install Python on your system.
+   - Ensure required Python libraries are installed. You can use `pip` to install missing libraries:
+     ```sh
+     pip install pyodbc
+     ```
+
+2. **Configure SQL Server**:
+   - Ensure that SQL Server is installed and running.
+   - Update the connection parameters in the script to match your SQL Server configuration. This includes the `SERVER`, `DATABASE`, and optionally `UID` and `PWD` if authentication is required.
+
+### **Running the Application**
+
+1. **Start the Application**:
+   - Run the Python script from the command line, providing the path to your JSON file:
+     ```sh
+     python script_name.py --file path_to_json_file
+     ```
    - Replace `script_name.py` with the name of your Python script.
    - Replace `path_to_json_file` with the path to the JSON file used for storing user data.
 
-3. **Interact with the Application**:
-   - **Enter New Data**: Choose 'Y' to enter new user data. Follow the prompts to provide user details.
-   - **Retrieve Stored Data**: Choose 'Q' to view the contents of the JSON file.
-   - **Search for a User**: Choose 'F' to search for a user by their UserID.
-   - **Insert All Data into SQL Server**: Choose 'P' to insert all data from the JSON file into the SQL Server database.
-   - **Exit the Program**: Choose 'N' to exit the application.
-
-4. **Follow Prompts**: The application will guide you through various options and requests for user input. Make selections based on your needs.
+2. **Follow On-Screen Prompts**:
+   - The application will present a menu with various options. Choose the option that best suits your needs:
+     - **Enter New Data**: Select 'Y' to add new user data.
+     - **Retrieve Stored Data**: Select 'Q' to view the contents of the JSON file.
+     - **Search for a User**: Select 'F' to search for a user by UserID.
+     - **Insert All Data into SQL Server**: Select 'P' to upload all user data from the JSON file to SQL Server.
+     - **Exit the Program**: Select 'N' to terminate the application.
 
 ---
 
@@ -31,100 +44,131 @@ To use the User Data Management System, follow these steps:
 
 ### **`create_json_file(file_name, isprint)`**
 
-- **Purpose**: Reads or prints the content of a JSON file.
+- **Purpose**: Handles the creation or reading of a JSON file to either print its content or return it as a dictionary.
 - **Parameters**:
-  - `file_name`: Path to the JSON file.
-  - `isprint`: Boolean indicating whether to print the content or return it as a dictionary.
-- **Returns**: JSON content as a string or dictionary.
-- **Error Handling**: Logs and exits on file operation errors.
+  - `file_name`: Specifies the path to the JSON file.
+  - `isprint`: Boolean flag to determine if the content should be printed or returned as a dictionary.
+- **Returns**: 
+  - If `isprint` is `True`, returns the file content as a string.
+  - If `isprint` is `False`, returns the file content parsed as a JSON dictionary.
+- **Error Handling**: 
+  - Catches and reports errors related to file reading and writing.
+  - Logs the error and exits the application if an exception is encountered.
 
 ### **`log_to_sql(log_level, message, additional_info=None)`**
 
-- **Purpose**: Logs messages to a SQL Server database.
+- **Purpose**: Logs events and messages to a SQL Server database for tracking and auditing purposes.
 - **Parameters**:
-  - `log_level`: Severity level (e.g., INFO, WARNING, ERROR).
-  - `message`: Main content of the log entry.
-  - `additional_info`: Optional additional context.
-- **Error Handling**: Handles SQL Server connection errors.
+  - `log_level`: The severity level of the log (e.g., INFO, WARNING, ERROR).
+  - `message`: Main content of the log message.
+  - `additional_info`: Optional parameter for additional context or details.
+- **Error Handling**:
+  - Handles SQL Server connection issues and logs any errors encountered during the logging process.
 
 ### **`data_collection(data, isvalid, error)`**
 
-- **Purpose**: Collects and validates user input.
+- **Purpose**: Collects user input through prompts and validates it based on a provided validation function.
 - **Parameters**:
-  - `data`: Prompt message.
-  - `isvalid`: Validation function.
-  - `error`: Error message if validation fails.
-- **Returns**: Validated user input.
-- **Error Handling**: Re-prompts and logs invalid input.
+  - `data`: The prompt message presented to the user.
+  - `isvalid`: A function used to validate the user input.
+  - `error`: The error message to display if the input is invalid.
+- **Returns**: The validated user input.
+- **Error Handling**:
+  - Prompts the user again if the input is invalid.
+  - Logs and reports any issues related to input validation.
 
 ### **`userID_isvalid(id, existingID)`**
 
-- **Purpose**: Validates the user ID to be alphanumeric and unique.
+- **Purpose**: Validates a user ID to ensure it is both alphanumeric and unique within a set of existing IDs.
 - **Parameters**:
-  - `id`: User ID to validate.
-  - `existingID`: List of existing IDs.
-- **Returns**: Boolean indicating validity.
-- **Error Handling**: Logs warnings for invalid or duplicate IDs.
+  - `id`: The user ID to be validated.
+  - `existingID`: A list of existing user IDs to check for uniqueness.
+- **Returns**: 
+  - `True` if the ID is valid and unique.
+  - `False` otherwise.
+- **Error Handling**:
+  - Logs warnings if the ID is invalid or a duplicate, and notifies the user.
 
 ### **`isyes(question, allow_all=False)`**
 
-- **Purpose**: Prompts the user with a yes/no question, with an optional 'all' choice.
+- **Purpose**: Prompts the user with a yes/no question, with an optional 'all' choice to apply the action to all items.
 - **Parameters**:
-  - `question`: The question to ask.
-  - `allow_all`: Boolean for allowing 'all' as a response.
-- **Returns**: Boolean or 'all' based on input.
-- **Error Handling**: Handles invalid responses.
+  - `question`: The question to be asked.
+  - `allow_all`: Boolean to indicate if 'all' is a valid response.
+- **Returns**: 
+  - `True` if the user answers 'y'.
+  - `False` if the user answers 'n'.
+  - `'all'` if 'all' is allowed and chosen.
+- **Error Handling**:
+  - Handles invalid responses and prompts the user until a valid input is received.
 
 ### **`sql_connection(user_id, first_name, last_name, age, gender, year_of_birth, auto_confirm=False)`**
 
-- **Purpose**: Connects to SQL Server to insert or update user data.
+- **Purpose**: Connects to SQL Server to insert or update user data in the database.
 - **Parameters**:
-  - `user_id`: User ID.
-  - `first_name`: User's first name.
-  - `last_name`: User's last name.
-  - `age`: User's age.
-  - `gender`: User's gender.
-  - `year_of_birth`: User's year of birth.
-  - `auto_confirm`: Boolean for automatic update confirmation.
-- **Error Handling**: Handles SQL errors and conflicts with existing records.
+  - `user_id`: Unique identifier for the user.
+  - `first_name`: User’s first name.
+  - `last_name`: User’s last name.
+  - `age`: User’s age.
+  - `gender`: User’s gender.
+  - `year_of_birth`: User’s year of birth.
+  - `auto_confirm`: Boolean indicating if confirmation for updates should be automatic.
+- **Error Handling**:
+  - Catches and logs SQL errors.
+  - Handles conflicts with existing records, providing options for automatic or manual confirmation for updates.
 
 ### **`collect_user_data(existingID)`**
 
-- **Purpose**: Collects and validates user data through input prompts.
+- **Purpose**: Gathers and validates user data through a series of input prompts.
 - **Parameters**:
-  - `existingID`: List of existing IDs for validation.
-- **Returns**: Dictionary with collected user data.
-- **Error Handling**: Validates input using `data_collection` and logs issues.
+  - `existingID`: A list of existing user IDs to ensure uniqueness.
+- **Returns**: A dictionary where the key is the user ID and the value is another dictionary with the user’s details.
+- **Error Handling**:
+  - Utilizes the `data_collection` function to validate each piece of user input.
+  - Logs and reports validation errors.
 
 ### **`handle_user_data(file_path, user_ids)`**
 
-- **Purpose**: Updates the JSON file with new user data and performs SQL operations.
+- **Purpose**: Updates the JSON file with new user data and performs SQL operations to insert or update records.
 - **Parameters**:
-  - `file_path`: Path to the JSON file.
-  - `user_ids`: Dictionary of new user data.
-- **Error Handling**: Updates the JSON file and performs SQL operations, logging success or failure.
+  - `file_path`: Path to the JSON file where data will be stored.
+  - `user_ids`: Dictionary of new user data to be added.
+- **Error Handling**:
+  - Updates the JSON file and handles SQL operations, logging success or failure of these actions.
 
 ### **`handle_user_interaction(file_path, merged_dict)`**
 
-- **Purpose**: Manages user interaction for data management operations.
+- **Purpose**: Manages user interactions for various actions such as entering new data, retrieving stored data, searching, and inserting data into SQL Server.
 - **Parameters**:
   - `file_path`: Path to the JSON file.
-  - `merged_dict`: Dictionary of existing data.
-- **Error Handling**: Logs user choices and handles different options such as data entry, retrieval, searching, and SQL insertion.
+  - `merged_dict`: Dictionary of existing data loaded from the JSON file.
+- **Error Handling**:
+  - Logs user choices and interactions.
+  - Handles different user options including data entry, retrieval, searching, and SQL insertion.
 
 ### **`main()`**
 
-- **Purpose**: Main function to handle user interactions and manage data.
+- **Purpose**: Initializes the application and manages user interaction based on command-line arguments.
 - **Parameters**: None.
-- **Error Handling**: Initializes the application and handles user input.
+- **Error Handling**:
+  - Loads existing data from the JSON file.
+  - Handles user input and manages the flow of the application.
 
 ---
 
 ## **Troubleshooting**
 
-- **File Not Found**: Ensure the file path is correct and the file exists.
-- **SQL Connection Issues**: Check SQL Server configuration and connection parameters.
-- **Invalid Input**: Follow prompts and ensure input adheres to specified formats.
+- **File Not Found**: 
+  - Ensure the file path provided is correct and the file exists.
+  - Check file permissions to ensure it is readable and writable.
+
+- **SQL Connection Issues**: 
+  - Verify SQL Server is running and accessible.
+  - Confirm connection parameters are correct (e.g., server name, database name).
+
+- **Invalid Input**: 
+  - Follow prompts carefully and ensure input matches the expected format.
+  - Refer to error messages for guidance on correcting input.
 
 ---
 
