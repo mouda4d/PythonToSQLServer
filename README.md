@@ -102,7 +102,3 @@ Feel free to fork the repository and submit pull requests with improvements or b
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
-
----
-
-Feel free to adjust the sections according to your project specifics!
