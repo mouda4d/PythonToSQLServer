@@ -317,7 +317,7 @@ def main():
     """
     # Set up argument parser to get command-line arguments
     parser = argparse.ArgumentParser(description="User Data Management System")
-    parser.add_argument('--file', type=str, required=True, help="Path to the JSON file for user data")
+    parser.add_argument('--file', type=str, default='user_data.txt', help="Path to the JSON file for user data (default: user_data.txt)")
     args = parser.parse_args()  # Parse the command-line arguments
 
     file_path = args.file  # Get the file path from the arguments
