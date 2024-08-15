@@ -1,104 +1,133 @@
 
-# User Data Management System
+# **User Data Management System Documentation**
 
-## Overview
+---
 
-This application is a user data management system that interacts with a SQL Server database and a JSON file. It allows you to collect, view, search, and insert user data into a SQL Server database. The application logs interactions and errors to the SQL Server database for tracking purposes.
+## **Usage Instructions**
 
-## Features
+To use the User Data Management System, follow these steps:
 
-- **Collect User Data**: Collects and validates user data including UserID, First Name, Last Name, Age, Gender, and Year of Birth.
-- **Retrieve Stored Data**: Displays the content of the JSON file where user data is stored.
-- **Search for a User**: Allows searching for a user by UserID.
-- **Insert Data into SQL Server**: Inserts or updates user data into the SQL Server database.
-- **Logging**: Logs interactions and errors to SQL Server for auditing and troubleshooting.
+1. **Setup**: Ensure you have Python and the required libraries (`pyodbc`, `json`, `argparse`) installed. You may need to configure your SQL Server connection parameters in the script.
 
-## Requirements
+2. **Run the Application**:
+   ```sh
+   python script_name.py --file path_to_json_file
+   ```
+   - Replace `script_name.py` with the name of your Python script.
+   - Replace `path_to_json_file` with the path to the JSON file used for storing user data.
 
-- Python 3.x
-- `pyodbc` library for SQL Server connectivity
-- A SQL Server instance (e.g., SQL Server Express)
-- JSON file to store user data
+3. **Interact with the Application**:
+   - **Enter New Data**: Choose 'Y' to enter new user data. Follow the prompts to provide user details.
+   - **Retrieve Stored Data**: Choose 'Q' to view the contents of the JSON file.
+   - **Search for a User**: Choose 'F' to search for a user by their UserID.
+   - **Insert All Data into SQL Server**: Choose 'P' to insert all data from the JSON file into the SQL Server database.
+   - **Exit the Program**: Choose 'N' to exit the application.
 
-## Installation
+4. **Follow Prompts**: The application will guide you through various options and requests for user input. Make selections based on your needs.
 
-1. **Clone the repository:**
+---
 
-    ```bash
-    git clone https://github.com/yourusername/user-data-management-system.git
-    cd user-data-management-system
-    ```
+## **Functions**
 
-2. **Install dependencies:**
+### **`create_json_file(file_name, isprint)`**
 
-    You can use `pip` to install the required packages:
+- **Purpose**: Reads or prints the content of a JSON file.
+- **Parameters**:
+  - `file_name`: Path to the JSON file.
+  - `isprint`: Boolean indicating whether to print the content or return it as a dictionary.
+- **Returns**: JSON content as a string or dictionary.
+- **Error Handling**: Logs and exits on file operation errors.
 
-    ```bash
-    pip install pyodbc
-    ```
+### **`log_to_sql(log_level, message, additional_info=None)`**
 
-    Ensure that you have the SQL Server ODBC driver installed on your system. For SQL Server Express, you might need to install it from [Microsoft's website](https://docs.microsoft.com/en-us/sql/connect/odbc/download-odbc-driver-for-sql-server).
+- **Purpose**: Logs messages to a SQL Server database.
+- **Parameters**:
+  - `log_level`: Severity level (e.g., INFO, WARNING, ERROR).
+  - `message`: Main content of the log entry.
+  - `additional_info`: Optional additional context.
+- **Error Handling**: Handles SQL Server connection errors.
 
-## Usage
+### **`data_collection(data, isvalid, error)`**
 
-1. **Prepare the SQL Server Database:**
+- **Purpose**: Collects and validates user input.
+- **Parameters**:
+  - `data`: Prompt message.
+  - `isvalid`: Validation function.
+  - `error`: Error message if validation fails.
+- **Returns**: Validated user input.
+- **Error Handling**: Re-prompts and logs invalid input.
 
-   Ensure you have a SQL Server instance running and a database named `UserDatabase`. Create the required tables with the following structure:
+### **`userID_isvalid(id, existingID)`**
 
-    ```sql
-    CREATE TABLE LogEntries (
-        LogID INT PRIMARY KEY IDENTITY,
-        LogLevel VARCHAR(10),
-        Message VARCHAR(255),
-        AdditionalInfo TEXT,
-        LogDate DATETIME DEFAULT GETDATE()
-    );
+- **Purpose**: Validates the user ID to be alphanumeric and unique.
+- **Parameters**:
+  - `id`: User ID to validate.
+  - `existingID`: List of existing IDs.
+- **Returns**: Boolean indicating validity.
+- **Error Handling**: Logs warnings for invalid or duplicate IDs.
 
-    CREATE TABLE Users (
-        user_id VARCHAR(50) PRIMARY KEY,
-        first_name VARCHAR(50),
-        last_name VARCHAR(50),
-        age INT,
-        gender VARCHAR(10),
-        year_of_birth INT
-    );
-    ```
+### **`isyes(question, allow_all=False)`**
 
-2. **Run the Application:**
+- **Purpose**: Prompts the user with a yes/no question, with an optional 'all' choice.
+- **Parameters**:
+  - `question`: The question to ask.
+  - `allow_all`: Boolean for allowing 'all' as a response.
+- **Returns**: Boolean or 'all' based on input.
+- **Error Handling**: Handles invalid responses.
 
-   To start the application, use the following command:
+### **`sql_connection(user_id, first_name, last_name, age, gender, year_of_birth, auto_confirm=False)`**
 
-    ```bash
-    python script_name.py --file path_to_your_json_file
-    ```
+- **Purpose**: Connects to SQL Server to insert or update user data.
+- **Parameters**:
+  - `user_id`: User ID.
+  - `first_name`: User's first name.
+  - `last_name`: User's last name.
+  - `age`: User's age.
+  - `gender`: User's gender.
+  - `year_of_birth`: User's year of birth.
+  - `auto_confirm`: Boolean for automatic update confirmation.
+- **Error Handling**: Handles SQL errors and conflicts with existing records.
 
-   Replace `script_name.py` with the name of your Python script and `path_to_your_json_file` with the path to the JSON file where user data will be stored.
+### **`collect_user_data(existingID)`**
 
-3. **Interact with the Application:**
+- **Purpose**: Collects and validates user data through input prompts.
+- **Parameters**:
+  - `existingID`: List of existing IDs for validation.
+- **Returns**: Dictionary with collected user data.
+- **Error Handling**: Validates input using `data_collection` and logs issues.
 
-   After running the application, you'll be presented with a menu with the following options:
+### **`handle_user_data(file_path, user_ids)`**
 
-   - **Y** - Enter new data: Collect and save new user data.
-   - **Q** - Retrieve stored data: Display the content of the JSON file.
-   - **F** - Search for a user: Search for a user by UserID.
-   - **P** - Insert all data into SQL Server: Insert or update all data from the JSON file into the SQL Server database.
-   - **N** - Exit the program: Exit the application.
+- **Purpose**: Updates the JSON file with new user data and performs SQL operations.
+- **Parameters**:
+  - `file_path`: Path to the JSON file.
+  - `user_ids`: Dictionary of new user data.
+- **Error Handling**: Updates the JSON file and performs SQL operations, logging success or failure.
 
-   Follow the on-screen prompts to interact with the application.
+### **`handle_user_interaction(file_path, merged_dict)`**
 
-## Logging
+- **Purpose**: Manages user interaction for data management operations.
+- **Parameters**:
+  - `file_path`: Path to the JSON file.
+  - `merged_dict`: Dictionary of existing data.
+- **Error Handling**: Logs user choices and handles different options such as data entry, retrieval, searching, and SQL insertion.
 
-The application logs various actions and errors to the `LogEntries` table in the SQL Server database. Check this table for detailed logs of user interactions and any issues encountered.
+### **`main()`**
 
-## Troubleshooting
+- **Purpose**: Main function to handle user interactions and manage data.
+- **Parameters**: None.
+- **Error Handling**: Initializes the application and handles user input.
 
-- **SQL Server Connection Issues**: Ensure your SQL Server instance is running and accessible. Verify connection details in the `log_to_sql` function.
-- **Missing Dependencies**: Make sure all required Python packages are installed.
+---
 
-## Contributing
+## **Troubleshooting**
 
-Feel free to fork the repository and submit pull requests with improvements or bug fixes. Please ensure that your code follows the existing style and includes relevant tests.
+- **File Not Found**: Ensure the file path is correct and the file exists.
+- **SQL Connection Issues**: Check SQL Server configuration and connection parameters.
+- **Invalid Input**: Follow prompts and ensure input adheres to specified formats.
 
-## License
+---
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
+## **License**
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
